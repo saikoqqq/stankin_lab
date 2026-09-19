@@ -1,1 +1,0 @@
-# stankin_lab
