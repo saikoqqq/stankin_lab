@@ -1,0 +1,42 @@
+def check_cow_status(currentSignal: float | int) -> str:
+    """
+    Вычисление температуры по сигналу датчика и анализ состояния коровы.
+    Входные данные: currentSignal (float | int) - ток с датчика в мА (диапазон 4-20 мА)
+    Выходные данные: str - итоговая строка со статусом датчика и коровы
+    """
+    if type(currentSignal) not in (int, float) or type(currentSignal) == bool:
+        raise TypeError("Неверный тип сигнала")
+
+    if currentSignal < 0:
+        raise ValueError("Отрицательное значение сигнала")
+
+    if currentSignal == 0:
+        return "Получен сигнал 0mA, датчик отключен"
+
+    if 0 < currentSignal <= 3.9 or currentSignal >= 20.1:
+        return f"Получен сигнал {currentSignal}mA, датчик неисправен"
+
+    pvMin = 0.0
+    pvMax = 75.0
+    currentTemperature = (currentSignal - 4) * (pvMax - pvMin) / (20 - 4) + pvMin
+
+    if 37.5 <= currentTemperature <= 39.0:
+        cowStatus = "с коровой все ок"
+    elif 35.0 <= currentTemperature <= 37.4:
+        cowStatus = "корова замерзла, требуется обогрев"
+    elif 39.1 <= currentTemperature <= 39.5:
+        cowStatus = "корова перегрелась, требуется охлаждение"
+    elif currentTemperature < 34.9:
+        cowStatus = "требуется внимание (датчик свалился или корова плохо себя чувствует)"
+    elif currentTemperature > 39.6:
+        cowStatus = "срочно вызывайте ветеринара, коровка заболела"
+    else:
+        cowStatus = "состояние неопределено"
+
+    return f"Получен сигнал датчика {currentSignal}mA, датчик исправен, температура {currentTemperature} градусов, {cowStatus}"
+
+try:
+    userInput = float(input("Введите данные датчика (ток в мА): "))
+    print(check_cow_status(userInput))
+except (ValueError, TypeError):
+    print("Ошибка: введены некорректные данные!")
